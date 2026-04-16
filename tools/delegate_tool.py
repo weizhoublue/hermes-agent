@@ -864,16 +864,18 @@ def _resolve_delegation_credentials(cfg: dict, parent_agent) -> dict:
     configured_provider = str(cfg.get("provider") or "").strip() or None
     configured_base_url = str(cfg.get("base_url") or "").strip() or None
     configured_api_key = str(cfg.get("api_key") or "").strip() or None
+    configured_api_key_env = str(cfg.get("api_key_env") or "").strip() or None
 
     if configured_base_url:
         api_key = (
             configured_api_key
+            or (os.getenv(configured_api_key_env) if configured_api_key_env else None)
             or os.getenv("OPENAI_API_KEY", "").strip()
         )
         if not api_key:
             raise ValueError(
                 "Delegation base_url is configured but no API key was found. "
-                "Set delegation.api_key or OPENAI_API_KEY."
+                "Set delegation.api_key, delegation.api_key_env, or OPENAI_API_KEY."
             )
 
         base_lower = configured_base_url.lower()
